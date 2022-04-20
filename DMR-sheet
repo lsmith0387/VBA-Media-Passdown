@@ -1,0 +1,89 @@
+Option Explicit
+
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+If Target.Column = 7 Then
+Dim rngDV As Range
+Dim oldVal As String
+Dim newVal As String
+Dim strList As String
+On Error Resume Next
+
+Application.EnableEvents = False
+   ActiveSheet.Unprotect
+   Set rngDV = Range("G:G").Cells.SpecialCells(xlCellTypeAllValidation)
+   
+On Error GoTo exitHandler
+
+   If rngDV Is Nothing Then GoTo exitHandler
+
+   If Not Intersect(Target, rngDV) Is Nothing Then
+      If Target.Validation.Type = 3 Then
+         strList = Target.Validation.Formula1
+         strList = Right(strList, Len(strList) - 1)
+         strDVList = strList
+         frmDVList.Show
+      End If
+   End If
+exitHandler:
+ActiveSheet.Protect
+ Application.EnableEvents = True
+End If
+End Sub
+'
+' Developed by Contextures Inc.
+' www.contextures.com
+Private Sub Worksheet_Change(ByVal Target As Range)
+Dim rngDV As Range
+Dim oldVal As String
+Dim newVal As String
+Dim strSep As String
+
+strSep = vbNewLine
+  Application.EnableEvents = False
+On Error Resume Next
+
+If Target.Column = 6 Then
+Application.ScreenUpdating = False
+ActiveSheet.Unprotect
+Range("C" & Target.Row & ":E" & Target.Row).Copy
+Range("C" & Target.Row).PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+Range("F" & Target.Row).Select
+  ActiveSheet.Protect
+Application.ScreenUpdating = True
+End If
+
+If Target.Count > 1 Then GoTo exitHandler
+
+
+Set rngDV = Range("G:G").Cells.SpecialCells(xlCellTypeAllValidation)
+On Error GoTo exitHandler
+
+If rngDV Is Nothing Then GoTo exitHandler
+
+If Intersect(Target, rngDV) Is Nothing Then
+   'do nothing
+Else
+
+  newVal = Target.Value
+  Application.Undo
+  oldVal = Target.Value
+  Target.Value = newVal
+   If newVal = "" Then
+      'do nothing
+   Else
+         If oldVal = "" Then
+            Target.Value = newVal
+         Else
+            Target.Value = oldVal & strSep & newVal
+         End If
+    End If
+
+End If
+
+exitHandler:
+  Application.EnableEvents = True
+
+
+End Sub
+
