@@ -1,0 +1,106 @@
+
+
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+'Test if workbook is the master file and not save copies of backup files
+Dim yr As String
+yr = Format(CStr(Now), "yy")
+If ActiveWorkbook.Name Like "Media Passdown.xlsm" Then
+
+Call Save_Backup_Copy_As
+Call Delete_Old_Copy
+
+Else
+    MsgBox "Warning!  This is a backup copy.  Please close this worksheet and open the correct file to edit."
+End If
+End Sub
+
+
+'Delete jobs that are no longer in the Media Schedule (black colored rows) when workbook is saved
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+Dim tbl As ListObject
+Set tbl = Sheet1.ListObjects("Order_Status")
+
+Application.ScreenUpdating = False
+
+Sheet1.Unprotect Password:="editpass"
+
+For i = 2 To tbl.Range.Rows.Count
+
+If tbl.DataBodyRange(i - 1, 1).DisplayFormat.Interior.ColorIndex = 56 Then
+tbl.ListRows(i - 1).Range.EntireRow.Delete
+
+i = i - 1
+
+End If
+
+Next i
+
+Sheet1.Protect Password:="editpass", AllowFiltering:=True, AllowSorting:=True
+Application.ScreenUpdating = True
+
+End Sub
+
+
+Function FileAge(pDate1 As Date, pDate2 As Date) As Long
+
+   FileAge = DateDiff("d", pDate1, pDate2)
+
+End Function
+Sub Delete_Old_Copy()
+    'Deletes files with names dated older than 14 days
+Dim A
+Dim B
+Dim c
+Dim Dir_Path As String
+Dir_Path = ThisWorkbook.Path
+Dim Masq_File, DIR_Result
+Dim MyDAY As String
+Dim MyMONTH As String
+Dim MyYEAR As String
+Dim MyDATE As String
+Dim yr As String
+yr = Format(CStr(Now), "yy")
+
+
+'------------ LOOK IF ROOT  DIRECTORY  EXISTS
+    Masq_File = Dir_Path & "\Backup Files\" & "Media Passdown *"
+   
+    DIR_Result = Dir(Masq_File, vbNormal)        '  Init  Dir_Result,  We  start  with only files
+    While (DIR_Result <> "")
+'------------   FILES EXIST   -----------------
+        MyMONTH = Mid(DIR_Result, Len(DIR_Result) - 18, 2)
+        'B = Month(Date) - 1
+        MyDAY = Mid(DIR_Result, Len(DIR_Result) - 15, 2)
+        'A = Day(Date) - 1
+        MyYEAR = Mid(DIR_Result, Len(DIR_Result) - 12, 2)
+        'c = Year(Date) - 1
+        MyDATE = MyMONTH & "/" & MyDAY & "/" & MyYEAR
+        
+        Dim diff As String
+        Dim pDate1 As Date
+        Dim pDate2 As Date
+        pDate1 = Format(CDate(MyDATE), "mm/dd/yy")
+        pDate2 = Format(Now, "mm/dd/yy")
+        diff = FileAge(pDate1, pDate2)
+        If diff > 7 Then
+            
+            Kill Dir_Path & "\Backup Files\" & DIR_Result
+            
+        End If
+        DIR_Result = Dir
+    Wend
+
+
+End Sub
+
+
+
+Sub Workbook_Open()
+
+Application.OnTime TimeValue("00:00:00"), "Save_Backup_Copy_As"
+Application.OnTime TimeValue("07:15:00"), "Savefile"
+Application.OnTime TimeValue("15:15:00"), "Savefile"
+Application.OnTime TimeValue("23:15:00"), "Savefile"
+End Sub
+
+
