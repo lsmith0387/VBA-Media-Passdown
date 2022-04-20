@@ -1,0 +1,13 @@
+
+
+
+Sub Save_Backup_Copy_As()
+    'Saves a backup copy with the date and time.
+Dim dt As String, wbNam As String, relativePath As String
+
+wbNam = ActiveWorkbook.Name
+dt = Format(CStr(Now), "mm-dd-yy_hh-mm")
+relativePath = ThisWorkbook.Path & "\Backup Files\" & wbNam & dt
+ActiveWorkbook.SaveCopyAs Filename:=relativePath & ".xlsm"
+    'MsgBox "Backup Copy Saved as " & relativePath & ".xlsm"
+End Sub
