@@ -1,0 +1,102 @@
+'All buttons on "expectations for next shift" tab
+Sub Clear_All_Rows()
+
+Application.ScreenUpdating = False
+Dim sht As Worksheet
+
+Set sht = ActiveWorkbook.Worksheets("Expectations for Next Shift")
+sht.Unprotect
+sht.Range("A13:R13").Copy
+sht.Range("A14:R28").PasteSpecial
+
+sht.Cells(14, 1).Select
+sht.Protect
+Application.ScreenUpdating = True
+
+
+End Sub
+
+Sub clear_row()
+
+Application.ScreenUpdating = False
+Dim sht As Worksheet
+Dim BR As Long
+
+Set sht = ActiveWorkbook.Worksheets("Expectations for Next Shift")
+sht.Unprotect
+
+BR = sht.Buttons(Application.Caller).TopLeftCell.Row
+sht.Range("A13:R13").Copy
+sht.Range("A" & BR & ":R" & BR).PasteSpecial xlPasteFormulas
+
+sht.Cells(BR, 1).Select
+sht.Protect
+
+Application.ScreenUpdating = True
+
+    End Sub
+
+
+
+Sub Shift_Items_Up()
+Application.ScreenUpdating = False
+Application.DisplayAlerts = False
+Dim sht As Worksheet
+Set sht = ActiveWorkbook.Worksheets("Expectations for Next Shift")
+sht.Unprotect
+
+For i = 27 To 14 Step -1
+If IsEmpty(sht.Range("A" & i)) = True Then
+
+    sht.Range("A" & i + 1 & ":R28").Copy
+    sht.Range("A" & i & ":R27").PasteSpecial
+    sht.Range("A13:R13").Copy
+    sht.Range("A" & i & ":R27").PasteSpecial xlPasteFormats
+    
+End If
+Next i
+ sht.Range("A14").Select
+Application.DisplayAlerts = True
+sht.Protect
+End Sub
+
+
+
+
+Sub Down()
+
+Application.ScreenUpdating = False
+Dim sht As Worksheet
+Dim BR As Long
+
+Set sht = ActiveWorkbook.Worksheets("Expectations for Next Shift")
+sht.Unprotect
+BR = sht.Buttons(Application.Caller).TopLeftCell.Row
+sht.Range("A" & BR & ":R" & BR).Cut
+sht.Range("A" & BR + 2 & ":R" & BR + 2).Insert shift:=xlDown
+
+sht.Cells(BR + 1, 1).Select
+sht.Protect
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub Up()
+
+Application.ScreenUpdating = False
+Dim sht As Worksheet
+Dim BR As Long
+
+Set sht = ActiveWorkbook.Worksheets("Expectations for Next Shift")
+
+sht.Unprotect
+BR = sht.Buttons(Application.Caller).TopLeftCell.Row
+sht.Range("A" & BR & ":R" & BR).Cut
+sht.Range("A" & BR - 1 & ":R" & BR - 1).Insert shift:=xlDown
+
+sht.Cells(BR - 1, 1).Select
+sht.Protect
+Application.ScreenUpdating = True
+
+End Sub
+
