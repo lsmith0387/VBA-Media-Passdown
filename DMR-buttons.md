@@ -1,0 +1,82 @@
+# VBA-Media-Passdown
+
+
+'Buttons for DMR sheet
+Option Explicit
+Dim sht As Worksheet
+Dim BR As Long
+
+Sub Close_DMR()
+
+Set sht = ActiveWorkbook.Worksheets("DMR's")
+ Application.EnableEvents = False
+Application.ScreenUpdating = False
+sht.Unprotect
+
+BR = sht.Buttons(Application.Caller).TopLeftCell.Row
+sht.Cells(BR, 11).Value = Date
+sht.Cells(BR, 8).Value = "Closed"
+sht.Rows(BR).EntireRow.Hidden = True
+
+sht.Protect
+Application.ScreenUpdating = False
+ Application.EnableEvents = True
+End Sub
+
+Sub New_DMR()
+Set sht = ActiveWorkbook.Worksheets("DMR's")
+ Application.EnableEvents = False
+Application.ScreenUpdating = False
+sht.Unprotect
+Cells.EntireRow.Hidden = False
+
+sht.Range("A3:L3").Copy
+sht.Range("A4").Insert shift:=xlDown
+sht.Range("A4").Value = Date
+
+'sht.Shapes.Range(Array("Button 17")).Select
+   ' Selection.Copy
+    'Range("L4").Select
+   ' Cells(4, 12).PasteSpecial
+    
+sht.Rows(3).EntireRow.Hidden = True
+Call Hide_Closed
+sht.Range("B4").Select
+
+End Sub
+
+Sub Show_All()
+Set sht = ActiveWorkbook.Worksheets("DMR's")
+ Application.EnableEvents = False
+Application.ScreenUpdating = False
+sht.Unprotect
+
+Cells.EntireRow.Hidden = False
+sht.Rows(3).EntireRow.Hidden = True
+
+sht.Protect
+Application.ScreenUpdating = True
+ Application.EnableEvents = True
+
+End Sub
+
+Sub Hide_Closed()
+Dim lastrow As Long
+Dim i As Long
+
+Set sht = ActiveWorkbook.Worksheets("DMR's")
+ Application.EnableEvents = False
+Application.ScreenUpdating = False
+sht.Unprotect
+
+lastrow = sht.Range("A" & sht.Rows.Count).End(xlUp).Row
+    For i = 1 To lastrow
+        If sht.Cells(i, 8).Value = "Closed" Then
+        sht.Rows(i).EntireRow.Hidden = True
+        End If
+    Next i
+ 
+sht.Protect
+Application.ScreenUpdating = True
+ Application.EnableEvents = True
+End Sub
