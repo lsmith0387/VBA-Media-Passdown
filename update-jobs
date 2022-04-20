@@ -1,0 +1,156 @@
+Sub Update_Jobs() 'enter new jobs, calls toggle_button to sort and filter
+'On Error Resume Next
+Application.ScreenUpdating = False
+'unlock sheet
+ActiveSheet.Unprotect Password:="editpass"
+
+ThisWorkbook.UpdateLink Name:=ThisWorkbook.LinkSources
+
+Application.Calculate
+
+Dim orderstat As Worksheet
+Dim newjobs As Worksheet
+Dim lastnew As Long
+Dim lastjob As Long
+Dim countl As Long
+Dim count2 As Long
+
+'set worksheets
+Set orderstat = Worksheets("New Whiteboard")
+Set newjobs = Worksheets("Update Jobs")
+
+    'find last line with data for the new jobs
+    lastnew = newjobs.Columns("B").Find("*", SearchDirection:=xlPrevious, SearchOrder:=xlByRows, LookIn:=xlValues).Row
+    If lastnew > 2 Then
+    'count the number of lines of new jobs
+    countl = newjobs.Range("B3:B" & lastnew).Rows.Count
+    'find the last job listed on the whiteboard
+    lastjob = Cells(Rows.Count, 1).End(xlUp).Row
+    'add one to go to the next blank row
+    lastjob = lastjob + 1
+    count2 = newjobs.Range("B3:B" & lastnew).Rows.Count
+    
+    'add a row to whiteboard for every new job
+    For i = 1 To countl
+        orderstat.ListObjects("Order_Status").ListRows.Add Alwaysinsert:=True
+    Next i
+    
+'copy the new jobs (need, On hand, due date)
+'newjobs.Range("F3:H" & lastnew).Copy
+'add new jobs (need, on hand, due date) to whiteboard
+'orderstat.Range("W" & lastjob).PasteSpecial Paste:=xlPasteValues
+'copy new jobs (order number, part number, size, qty)
+'newjobs.Range("B3:E" & lastnew).Copy
+newjobs.Range("B3:B" & lastnew).Copy
+'add new jobs(order number, part number, size, qty) to whiteboard
+orderstat.Range("A" & lastjob).PasteSpecial Paste:=xlPasteValues
+
+orderstat.Range("A" & lastjob & ":E" & lastjob + count2).Locked = True
+orderstat.Range("U" & lastjob & ":W" & lastjob + count2).Locked = True
+
+
+End If
+       
+        
+On Error GoTo 0
+Call ToggleButton1_Click
+
+Application.ScreenUpdating = True
+        
+        
+End Sub
+
+'hide and unhide Unreleased jobs, filter out completed jobs, sort by date.
+
+Private Sub ToggleButton1_Click()
+
+Dim tbl As ListObject
+Set tbl = ActiveSheet.ListObjects("Order_Status")
+
+Application.ScreenUpdating = False
+
+ActiveSheet.Unprotect Password:="editpass"
+
+ActiveSheet.ListObjects("Order_Status").Range.AutoFilter Field:=26
+Worksheets("New Whiteboard").Rows.EntireRow.Hidden = False
+
+
+ 'sort by order color (released) and date
+   ActiveWorkbook.Worksheets("New Whiteboard").ListObjects("Order_Status").Sort. _
+        SortFields.Clear
+
+    ActiveWorkbook.Worksheets("New Whiteboard").ListObjects("Order_Status").Sort. _
+        SortFields.Add(Range("Order_Status[Shop Order]"), xlSortOnCellColor, _
+        xlAscending, , xlSortNormal).SortOnValue.Color = RGB(112, 173, 71)
+    ActiveWorkbook.Worksheets("New Whiteboard").ListObjects("Order_Status").Sort. _
+        SortFields.Add Key:=Range("Order_Status[Due Date]"), SortOn:=xlSortOnValues _
+        , Order:=xlAscending, CustomOrder:="ASAP", DataOption:=xlSortNormal
+
+        
+    With ActiveWorkbook.Worksheets("New Whiteboard").ListObjects("Order_Status"). _
+       Sort
+        .Header = xlYes
+        .MatchCase = False
+       .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+  
+    'filter out completed jobs
+    ActiveSheet.ListObjects("Order_Status").Range.AutoFilter Field:=26, _
+        Criteria1:=Array("In Process", "Not Started", "="), Operator:=xlFilterValues
+
+
+For i = 2 To tbl.Range.Rows.Count
+
+If ToggleButton1.Value = True And tbl.DataBodyRange(i - 1, 1).DisplayFormat.Interior.Color <> RGB(112, 173, 71) Then
+
+tbl.DataBodyRange.Rows.Rows(i - 1 & ":" & tbl.Range.Rows.Count).EntireRow.Hidden = True
+i = tbl.Range.Rows.Count
+'If ToggleButton1.Value = True And tbl.DataBodyRange(i - 1, 1).DisplayFormat.Interior.Color <> RGB(112, 173, 71) Then
+'tbl.Range.Rows(i).EntireRow.Hidden = True
+
+'ElseIf ToggleButton1.Value = False And tbl.DataBodyRange(i - 1, 26) <> "Complete" Then
+'tbl.Range.Rows(i).EntireRow.Hidden = False
+
+End If
+
+Next i
+
+ActiveSheet.Protect Password:="editpass", AllowFiltering:=True, AllowSorting:=True
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub hidearrows()
+
+Range("A11:Z11").Select
+Selection.AutoFilter
+Selection.AutoFilter Field:=2, VisibleDropDown:=False
+Selection.AutoFilter Field:=3, VisibleDropDown:=False
+Selection.AutoFilter Field:=4, VisibleDropDown:=False
+Selection.AutoFilter Field:=5, VisibleDropDown:=False
+Selection.AutoFilter Field:=6, VisibleDropDown:=False
+Selection.AutoFilter Field:=7, VisibleDropDown:=False
+Selection.AutoFilter Field:=8, VisibleDropDown:=False
+Selection.AutoFilter Field:=9, VisibleDropDown:=False
+Selection.AutoFilter Field:=10, VisibleDropDown:=False
+Selection.AutoFilter Field:=11, VisibleDropDown:=False
+Selection.AutoFilter Field:=12, VisibleDropDown:=False
+Selection.AutoFilter Field:=13, VisibleDropDown:=False
+Selection.AutoFilter Field:=14, VisibleDropDown:=False
+Selection.AutoFilter Field:=15, VisibleDropDown:=False
+Selection.AutoFilter Field:=16, VisibleDropDown:=False
+Selection.AutoFilter Field:=17, VisibleDropDown:=False
+Selection.AutoFilter Field:=18, VisibleDropDown:=False
+Selection.AutoFilter Field:=19, VisibleDropDown:=False
+Selection.AutoFilter Field:=20, VisibleDropDown:=False
+Selection.AutoFilter Field:=21, VisibleDropDown:=False
+Selection.AutoFilter Field:=22, VisibleDropDown:=False
+Selection.AutoFilter Field:=24, VisibleDropDown:=False
+Selection.AutoFilter Field:=25, VisibleDropDown:=False
+
+End Sub
+
+
+
