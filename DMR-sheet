@@ -29,9 +29,7 @@ ActiveSheet.Protect
  Application.EnableEvents = True
 End If
 End Sub
-'
-' Developed by Contextures Inc.
-' www.contextures.com
+
 Private Sub Worksheet_Change(ByVal Target As Range)
 Dim rngDV As Range
 Dim oldVal As String
